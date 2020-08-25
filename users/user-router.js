@@ -1,5 +1,6 @@
 const express = require("express")
 const db = require("../data/config")
+const userModel = require("./user-model")
 const { validateUserId } = require("./user-middleware")
 
 const router = express.Router()
@@ -53,5 +54,51 @@ router.delete("/users/:id", validateUserId(), async (req, res, next) => {
 		next(err)
 	}
 })
+
+// using SQL in JS 
+
+// get posts from a user id
+router.get("/users/:id/posts", validateUserId(), async (req, res, next) => {
+	try {
+		const posts = await userModel.findPostByUserId(req.params.id)
+
+		// move to helper function file
+		// const posts = await db("posts as p")
+		// 	.innerJoin("users as u", "u.id", "posts.user_id")
+		// 	.where("p.user_id", req.params.id)
+		// 	.select("p.id", "p.contents", "u.username") 
+
+		res.json(posts)
+	} catch(err) { 
+		next(err)
+	}
+})
+
+// // get info from single post?
+// router.get("/users/:id/posts/:id", validateUserId(), async (req, res, next) => {
+// 	try {
+// 		const posts = await db("post as p")
+// 			.innerJoin("users as u", "u.id", "posts.user_id")
+// 			.where("p.user_id", req.params.id)
+// 			.select("p.id", "p.contents", "u.username") 
+
+// 		res.json(posts)
+// 	} catch(err) { 
+// 		next(err)
+// 	}
+// })
+
+// delete post
+
+// router.delete("/users/:id/posts/:id", validateUserId(), async (req, res, next) => {
+// 	try {
+// 		const { id } = req.params
+// 		await db("users").where({ id }).del()
+
+// 		res.status(204).end()
+// 	} catch(err) {
+// 		next(err)
+// 	}
+// })
 
 module.exports = router
